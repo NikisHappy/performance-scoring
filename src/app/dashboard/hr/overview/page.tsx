@@ -148,7 +148,7 @@ export default function HROverviewPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-[#fafbfc]">
-                <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide w-[50px]" style={{ color: 'var(--text-3)' }}>排名</th>
+                <th className="pl-6 pr-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide w-[70px]" style={{ color: 'var(--text-3)' }}>排名</th>
                 <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>姓名</th>
                 <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>组别</th>
                 <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>上级</th>
@@ -162,7 +162,7 @@ export default function HROverviewPage() {
                 const rc = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'
                 return (
                   <tr key={i} style={{ background: r.up ? '#f0fdf4' : undefined, borderBottom: '1px solid #f3f4f6' }}>
-                    <td className="px-4.5 py-2.5"><div className={`rank-badge ${rc}`}>{i + 1}</div></td>
+                    <td className="pl-6 pr-4 py-2.5"><div className={`rank-badge ${rc}`}>{i + 1}</div></td>
                     <td className="px-4.5 py-2.5 text-xs font-semibold">{r.name}</td>
                     <td className="px-4.5 py-2.5 text-xs" style={{ color: 'var(--text-2)' }}>{r.team}</td>
                     <td className="px-4.5 py-2.5 text-xs" style={{ color: 'var(--text-2)' }}>{r.leader}</td>
