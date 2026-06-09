@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession } from '@/lib/auth'
 import { db } from '@/db'
-import { employees } from '@/db/schema'
+import { employees, teams, reviews, users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
+import { hashSync } from 'bcryptjs'
 
 // GET: List employees
 export async function GET(request: NextRequest) {
@@ -11,6 +12,13 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const teamId = searchParams.get('teamId')
+  const type = searchParams.get('type')
+
+  // Account management endpoints
+  if (type === 'accounts') {
+    const accounts = await db.select().from(users)
+    return NextResponse.json({ accounts: accounts.map(a => ({ id: a.id, username: a.username, name: a.name, role: a.role, leaderId: a.leaderId })) })
+  }
 
   let results
   if (teamId) {
@@ -25,10 +33,25 @@ export async function GET(request: NextRequest) {
     results = results.filter(e => !e.removedAt)
   }
 
+  // Include extra info (team/leader names, months)
+  const includeExtra = searchParams.get('includeExtra') === 'true'
+  if (includeExtra) {
+    const allTeams = await db.select().from(teams)
+    const allReviews = await db.select().from(reviews)
+    const monthsSet = new Set(allReviews.map(r => r.month))
+    const months = [...monthsSet].sort()
+
+    const enriched = results.map(e => {
+      const team = allTeams.find(t => t.id === e.teamId)
+      return { ...e, teamName: team?.name || '', leaderName: team?.leaderName || '' }
+    })
+    return NextResponse.json({ employees: enriched, months })
+  }
+
   return NextResponse.json({ employees: results })
 }
 
-// POST: Add employee
+// POST: Add employee or manage accounts
 export async function POST(request: NextRequest) {
   const session = await verifySession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -36,12 +59,45 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
+  const { searchParams } = new URL(request.url)
+  const type = searchParams.get('type')
   const body = await request.json()
-  const { name, pos, level, teamId, empNo, dept, joinDate, perfFullAmount, entity } = body
 
-  if (!name || !pos || !level || !teamId) {
+  // Account management
+  if (type === 'account') {
+    const { username, password, role, leaderId } = body
+    if (!username) return NextResponse.json({ error: 'Missing username' }, { status: 400 })
+    const pw = hashSync(password || '123456', 10)
+    await db.insert(users).values({ username, password: pw, name: username, role: role || 'hr', leaderId: leaderId || null })
+    return NextResponse.json({ success: true })
+  }
+
+  if (type === 'resetPwd') {
+    const { username } = body
+    const pw = hashSync('123456', 10)
+    await db.update(users).set({ password: pw }).where(eq(users.username, username))
+    return NextResponse.json({ success: true })
+  }
+
+  if (type === 'deleteAccount') {
+    const { username } = body
+    await db.delete(users).where(eq(users.username, username))
+    return NextResponse.json({ success: true })
+  }
+
+  // Add employee
+  const { name, pos, level, leaderId: empLeaderId, empNo, dept, joinDate, perfFullAmount, entity } = body
+
+  if (!name || !pos || !level) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
+
+  // Determine teamId based on pos and leaderId
+  const allTeams = await db.select().from(teams)
+  const leaderTeams = allTeams.filter(t => t.leaderId === (empLeaderId || 'l1'))
+  const posTeamMap: Record<string, string> = { '投手': '投手组', '内容': '内容组', '阿康': '阿康组', '策划': '策划组' }
+  const targetTeam = leaderTeams.find(t => t.name === posTeamMap[pos]) || leaderTeams[0]
+  const teamId = targetTeam?.id || 't1'
 
   const id = 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)
 
