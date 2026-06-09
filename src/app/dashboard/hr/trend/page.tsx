@@ -132,13 +132,13 @@ export default function HRTrendPage() {
             <div className="card p-5">
               <h4 className="text-[13px] font-semibold mb-4">月度评分分布</h4>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={chartData}>
+                <BarChart data={chartData} barSize={20}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="s90" name="90-100分" fill="#8b5cf6" stackId="a" />
+                  <Bar dataKey="s90" name="90-100分" fill="#8b5cf6" stackId="a" radius={[0, 0, 0, 0]} />
                   <Bar dataKey="s80" name="80-89分" fill="#10b981" stackId="a" />
                   <Bar dataKey="s70" name="70-79分" fill="#f59e0b" stackId="a" />
                   <Bar dataKey="s60" name="60-69分" fill="#f97316" stackId="a" />
@@ -155,7 +155,7 @@ export default function HRTrendPage() {
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis domain={[50, 100]} tick={{ fontSize: 11 }} />
                   <Tooltip />
-                  <Line type="monotone" dataKey="avg" name="均分" stroke="#4f6ef7" strokeWidth={2} dot={{ r: 4 }} />
+                  <Line type="linear" dataKey="avg" name="均分" stroke="#4f6ef7" strokeWidth={1.5} strokeOpacity={0.7} dot={{ r: 3, fill: '#4f6ef7' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -163,16 +163,17 @@ export default function HRTrendPage() {
 
           <div className="card p-5 mb-6">
             <h4 className="text-[13px] font-semibold mb-4">个人多月考评趋势</h4>
+            <p className="text-[11px] mb-3" style={{ color: 'var(--text-3)' }}>悬停折线查看对应员工姓名</p>
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={memberChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                 <YAxis domain={[40, 100]} tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
                 {data.memberTrends.map((mt, i) => (
-                  <Line key={mt.name} type="monotone" dataKey={mt.name} stroke={COLORS[i % COLORS.length]}
-                    strokeWidth={1.5} dot={{ r: 2.5 }} connectNulls />
+                  <Line key={mt.name} type="linear" dataKey={mt.name} stroke={COLORS[i % COLORS.length]}
+                    strokeWidth={1.5} strokeOpacity={0.4} dot={{ r: 2 }} connectNulls
+                    activeDot={{ r: 5, strokeWidth: 2 }} />
                 ))}
               </LineChart>
             </ResponsiveContainer>
