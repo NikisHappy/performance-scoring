@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts'
 
 const COLORS = ['#4f6ef7', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#14b8a6', '#f97316', '#6366f1']
 
@@ -18,6 +18,7 @@ export default function HRTrendPage() {
   const [filters, setFilters] = useState({ team: '', leader: '', name: '' })
   const [allMonths, setAllMonths] = useState<string[]>([])
   const [selectedMonths, setSelectedMonths] = useState<string[]>([])
+  const [activeLine, setActiveLine] = useState<string | null>(null)
 
   useEffect(() => {
     // Load available months first
@@ -155,7 +156,9 @@ export default function HRTrendPage() {
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis domain={[50, 100]} tick={{ fontSize: 11 }} />
                   <Tooltip />
-                  <Line type="linear" dataKey="avg" name="均分" stroke="#4f6ef7" strokeWidth={1.5} strokeOpacity={0.7} dot={{ r: 3, fill: '#4f6ef7' }} />
+                  <Line type="linear" dataKey="avg" name="均分" stroke="#4f6ef7" strokeWidth={1.5} strokeOpacity={0.7} dot={{ r: 3, fill: '#4f6ef7' }}>
+                    <LabelList dataKey="avg" position="top" style={{ fontSize: 10, fill: '#4f6ef7', fontWeight: 600 }} formatter={(v: number) => v?.toFixed(1)} />
+                  </Line>
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -163,20 +166,32 @@ export default function HRTrendPage() {
 
           <div className="card p-5 mb-6">
             <h4 className="text-[13px] font-semibold mb-4">个人多月考评趋势</h4>
-            <p className="text-[11px] mb-3" style={{ color: 'var(--text-3)' }}>悬停折线查看对应员工姓名</p>
-            <ResponsiveContainer width="100%" height={320}>
-              <LineChart data={memberChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis domain={[40, 100]} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                {data.memberTrends.map((mt, i) => (
-                  <Line key={mt.name} type="linear" dataKey={mt.name} stroke={COLORS[i % COLORS.length]}
-                    strokeWidth={1.5} strokeOpacity={0.4} dot={{ r: 2 }} connectNulls
-                    activeDot={{ r: 5, strokeWidth: 2 }} />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="relative">
+              {activeLine && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                  <span className="text-[14px] font-bold px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.9)', color: 'var(--accent)', border: '1px solid var(--accent)' }}>
+                    {activeLine}
+                  </span>
+                </div>
+              )}
+              <ResponsiveContainer width="100%" height={320}>
+                <LineChart data={memberChartData} onClick={() => setActiveLine(null)}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                  <YAxis domain={[40, 100]} tick={{ fontSize: 11 }} />
+                  {data.memberTrends.map((mt, i) => (
+                    <Line key={mt.name} type="linear" dataKey={mt.name} stroke={COLORS[i % COLORS.length]}
+                      strokeWidth={activeLine === mt.name ? 3 : 1.5}
+                      strokeOpacity={activeLine ? (activeLine === mt.name ? 1 : 0.1) : 0.4}
+                      dot={{ r: activeLine === mt.name ? 4 : 2 }}
+                      connectNulls
+                      activeDot={{ r: 5, strokeWidth: 2, onClick: () => setActiveLine(mt.name) }}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           <div className="card overflow-hidden" style={{ borderRadius: '12px' }}>
