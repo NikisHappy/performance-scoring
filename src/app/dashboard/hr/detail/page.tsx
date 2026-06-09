@@ -95,8 +95,8 @@ export default function HRDetailPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-[#fafbfc]">
-                <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide w-[50px]" style={{ color: 'var(--text-3)' }}>排名</th>
-                <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>姓名</th>
+                <th className="pl-6 pr-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide w-[70px]" style={{ color: "var(--text-3)" }}>排名</th>
+                <th className="pl-5 pr-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>姓名</th>
                 <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>级别</th>
                 <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>各维度</th>
                 <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>总分</th>
@@ -109,8 +109,8 @@ export default function HRDetailPage() {
                 const rc = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'
                 return (
                   <tr key={i} style={{ background: m.up ? '#f0fdf4' : undefined, borderBottom: '1px solid #f3f4f6' }}>
-                    <td className="px-4.5 py-2.5"><div className={`rank-badge ${rc}`}>{i + 1}</div></td>
-                    <td className="px-4.5 py-2.5 text-xs font-semibold">{m.name}</td>
+                    <td className="pl-6 pr-4 py-2.5"><div className={`rank-badge ${rc}`}>{i + 1}</div></td>
+                    <td className="pl-5 pr-4 py-2.5 text-xs font-semibold">{m.name}</td>
                     <td className="px-4.5 py-2.5 text-xs" style={{ color: 'var(--text-2)' }}>{m.level}</td>
                     <td className="px-4.5 py-2.5 text-[11px] max-w-[260px]" style={{ color: 'var(--text-2)' }}>{m.dimScores}</td>
                     <td className="px-4.5 py-2.5"><span className="text-[15px] font-bold font-mono">{m.totalScore.toFixed(1)}</span></td>

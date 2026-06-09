@@ -146,8 +146,8 @@ export default function HRTrendPage() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-[#fafbfc]">
-                  <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase" style={{ color: 'var(--text-3)' }}>组别</th>
-                  <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase" style={{ color: 'var(--text-3)' }}>Leader</th>
+                  <th className="pl-6 pr-4 py-2.5 text-left text-[10px] font-semibold uppercase" style={{ color: 'var(--text-3)' }}>组别</th>
+                  <th className="pl-5 pr-4 py-2.5 text-left text-[10px] font-semibold uppercase" style={{ color: 'var(--text-3)' }}>Leader</th>
                   {data.months.map(m => (
                     <th key={m} className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase" style={{ color: 'var(--text-3)' }}>{shortMonth(m)}</th>
                   ))}
@@ -164,8 +164,8 @@ export default function HRTrendPage() {
                   }
                   return (
                     <tr key={ta.teamName} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                      <td className="px-4.5 py-2.5 text-xs font-semibold">{ta.teamName}</td>
-                      <td className="px-4.5 py-2.5 text-xs" style={{ color: 'var(--text-2)' }}>{ta.leaderName}</td>
+                      <td className="pl-6 pr-4 py-2.5 text-xs font-semibold">{ta.teamName}</td>
+                      <td className="pl-5 pr-4 py-2.5 text-xs" style={{ color: 'var(--text-2)' }}>{ta.leaderName}</td>
                       {ta.avgs.map((v, i) => (
                         <td key={i} className="px-4.5 py-2.5 text-xs font-bold font-mono" style={{
                           color: v == null ? 'var(--text-3)' : v >= 90 ? 'var(--purple)' : v >= 80 ? 'var(--green)' : v >= 70 ? 'var(--amber)' : 'var(--red)'
