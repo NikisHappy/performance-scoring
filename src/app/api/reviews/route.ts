@@ -22,6 +22,10 @@ export async function GET(request: NextRequest) {
   } else if (employeeId) {
     results = await db.select().from(reviews)
       .where(and(eq(reviews.month, month), eq(reviews.employeeId, employeeId)))
+  } else if (session.role === 'leader' && session.leaderId) {
+    // Leader can only see their own reviews
+    results = await db.select().from(reviews)
+      .where(and(eq(reviews.month, month), eq(reviews.leaderId, session.leaderId)))
   } else {
     results = await db.select().from(reviews).where(eq(reviews.month, month))
   }

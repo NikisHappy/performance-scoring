@@ -27,6 +27,13 @@ export async function GET(request: NextRequest) {
     results = await db.select().from(employees)
   }
 
+  // Leader can only see their own team members
+  if (session.role === 'leader' && session.leaderId) {
+    const leaderTeams = await db.select().from(teams).where(eq(teams.leaderId, session.leaderId))
+    const teamIds = new Set(leaderTeams.map(t => t.id))
+    results = results.filter(e => teamIds.has(e.teamId))
+  }
+
   // Filter out removed employees unless requested
   const includeRemoved = searchParams.get('includeRemoved') === 'true'
   if (!includeRemoved) {
