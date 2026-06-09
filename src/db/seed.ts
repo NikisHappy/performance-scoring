@@ -15,6 +15,7 @@ async function seed() {
     DROP TABLE IF EXISTS review_scores CASCADE;
     DROP TABLE IF EXISTS reviews CASCADE;
     DROP TABLE IF EXISTS team_vacancy CASCADE;
+    DROP TABLE IF EXISTS period_status CASCADE;
     DROP TABLE IF EXISTS dimensions CASCADE;
     DROP TABLE IF EXISTS employees CASCADE;
     DROP TABLE IF EXISTS teams CASCADE;
@@ -76,15 +77,15 @@ async function seed() {
       score DOUBLE PRECISION NOT NULL
     );
     CREATE TABLE team_vacancy (
-    CREATE TABLE IF NOT EXISTS period_status (
-      id SERIAL PRIMARY KEY,
-      month TEXT NOT NULL UNIQUE,
-      is_open BOOLEAN DEFAULT TRUE
-    );
       id SERIAL PRIMARY KEY,
       team_id TEXT NOT NULL,
       month TEXT NOT NULL,
       is_vacant BOOLEAN DEFAULT FALSE
+    );
+    CREATE TABLE IF NOT EXISTS period_status (
+      id SERIAL PRIMARY KEY,
+      month TEXT NOT NULL UNIQUE,
+      is_open BOOLEAN DEFAULT TRUE
     );
   `)
 
