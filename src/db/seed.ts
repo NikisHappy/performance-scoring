@@ -76,6 +76,11 @@ async function seed() {
       score DOUBLE PRECISION NOT NULL
     );
     CREATE TABLE team_vacancy (
+    CREATE TABLE IF NOT EXISTS period_status (
+      id SERIAL PRIMARY KEY,
+      month TEXT NOT NULL UNIQUE,
+      is_open BOOLEAN DEFAULT TRUE
+    );
       id SERIAL PRIMARY KEY,
       team_id TEXT NOT NULL,
       month TEXT NOT NULL,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession } from '@/lib/auth'
 import { db } from '@/db'
-import { reviews, reviewScores, dimensions, employees } from '@/db/schema'
+import { reviews, reviewScores, dimensions, employees, periodStatus } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
 
 export async function GET(request: NextRequest) {
@@ -49,6 +49,12 @@ export async function POST(request: NextRequest) {
 
   if (!employeeId || !month || !leaderId) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
+  // Check if period is open
+  const [period] = await db.select().from(periodStatus).where(eq(periodStatus.month, month))
+  if (period && !period.isOpen) {
+    return NextResponse.json({ error: '该月份考评周期已关闭，无法修改数据' }, { status: 403 })
   }
 
   const [emp] = await db.select().from(employees).where(eq(employees.id, employeeId))

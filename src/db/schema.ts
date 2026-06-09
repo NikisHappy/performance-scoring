@@ -74,3 +74,11 @@ export type Dimension = typeof dimensions.$inferSelect
 export type Review = typeof reviews.$inferSelect
 export type ReviewScore = typeof reviewScores.$inferSelect
 export type TeamVacancy = typeof teamVacancy.$inferSelect
+
+export const periodStatus = pgTable('period_status', {
+  id: serial('id').primaryKey(),
+  month: text('month').notNull().unique(),
+  isOpen: boolean('is_open').default(true),
+})
+
+export type PeriodStatus = typeof periodStatus.$inferSelect

@@ -6,8 +6,13 @@ interface Account {
   id: number; username: string; name: string; role: string; leaderId: string | null
 }
 
+interface Period {
+  month: string; isOpen: boolean
+}
+
 export default function PermissionsPage() {
   const [accounts, setAccounts] = useState<Account[]>([])
+  const [periods, setPeriods] = useState<Period[]>([])
   const [form, setForm] = useState({ username: '', password: '123456', role: 'hr', leaderId: 'l1' })
   const [toast, setToast] = useState<{ msg: string; type: string } | null>(null)
 
@@ -21,7 +26,26 @@ export default function PermissionsPage() {
     if (res.ok) { const d = await res.json(); setAccounts(d.accounts || []) }
   }, [])
 
-  useEffect(() => { loadAccounts() }, [loadAccounts])
+  const loadPeriods = useCallback(async () => {
+    const res = await fetch('/api/periods')
+    if (res.ok) { const d = await res.json(); setPeriods(d.periods || []) }
+  }, [])
+
+  useEffect(() => { loadAccounts(); loadPeriods() }, [loadAccounts, loadPeriods])
+
+  async function togglePeriod(month: string, isOpen: boolean) {
+    const res = await fetch('/api/periods', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ month, isOpen })
+    })
+    if (res.ok) {
+      showToast(`${monthDisplay(month)} 已${isOpen ? '开启' : '关闭'}`, 'green')
+      loadPeriods()
+    }
+  }
+
+  const monthDisplay = (m: string) => { const [y, mo] = m.split('-'); return `${+y}年${+mo}月` }
 
   const grouped = {
     admin: accounts.filter(a => a.role === 'admin'),
@@ -129,6 +153,31 @@ export default function PermissionsPage() {
               </select></div>
           )}
           <button className="btn btn-primary" style={{ padding: '7px 18px' }} onClick={handleAdd}>添加</button>
+        </div>
+      </div>
+
+      {/* Period management */}
+      <div className="card p-5 mb-6" style={{ borderRadius: '12px' }}>
+        <h3 className="text-sm font-semibold mb-3">考评周期管理</h3>
+        <p className="text-xs mb-4" style={{ color: 'var(--text-2)' }}>开启周期后 Leader 可修改评分数据，关闭后数据锁定不可修改。</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {periods.map(p => (
+            <div key={p.month} className="flex items-center justify-between px-3 py-2.5 rounded-lg border"
+              style={{ borderColor: p.isOpen ? 'var(--green)' : 'var(--border)', background: p.isOpen ? 'var(--green-l)' : 'var(--bg-card)' }}>
+              <span className="text-[13px] font-medium">{monthDisplay(p.month)}</span>
+              <button onClick={() => togglePeriod(p.month, !p.isOpen)}
+                className="text-[11px] font-semibold px-2 py-1 rounded"
+                style={{
+                  background: p.isOpen ? 'var(--green)' : 'var(--bg-input)',
+                  color: p.isOpen ? '#fff' : 'var(--text-3)',
+                }}>
+                {p.isOpen ? '开启中' : '已关闭'}
+              </button>
+            </div>
+          ))}
+          {periods.length === 0 && (
+            <p className="text-xs col-span-full" style={{ color: 'var(--text-3)' }}>暂无考评周期数据</p>
+          )}
         </div>
       </div>
 
