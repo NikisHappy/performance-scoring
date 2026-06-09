@@ -18,6 +18,7 @@ export default function HRTrendPage() {
   const [filters, setFilters] = useState({ team: '', leader: '', name: '' })
   const [allMonths, setAllMonths] = useState<string[]>([])
   const [selectedMonths, setSelectedMonths] = useState<string[]>([])
+  const [monthDropdownOpen, setMonthDropdownOpen] = useState(false)
   const [activeLine, setActiveLine] = useState<string | null>(null)
 
   useEffect(() => {
@@ -79,25 +80,44 @@ export default function HRTrendPage() {
       </div>
 
       <div className="flex gap-3.5 mb-6 flex-wrap items-end">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>月份（多选）</label>
-          <div className="flex gap-1 flex-wrap max-w-[400px]">
-            {allMonths.map(m => {
-              const active = selectedMonths.includes(m)
-              const [y, mo] = m.split('-')
-              return (
-                <button key={m} onClick={() => toggleMonth(m)}
-                  className="px-2 py-1 rounded text-[11px] font-medium border transition-colors"
-                  style={{
-                    background: active ? 'var(--accent-l)' : 'var(--bg-card)',
-                    color: active ? 'var(--accent)' : 'var(--text-3)',
-                    borderColor: active ? 'var(--accent)' : 'var(--border)',
-                  }}>
-                  {+mo}月
-                </button>
-              )
-            })}
-          </div>
+        <div className="flex flex-col gap-1.5 relative">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>选择月份</label>
+          <button onClick={() => setMonthDropdownOpen(!monthDropdownOpen)}
+            className="select-field text-left flex items-center justify-between min-w-[200px]"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <span className="text-[13px]" style={{ color: selectedMonths.length ? 'var(--text)' : 'var(--text-3)' }}>
+              {selectedMonths.length ? `已选 ${selectedMonths.length} 个月` : '请选择月份'}
+            </span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0 }}>
+              <path d="M1 1L5 5L9 1" stroke="var(--text-3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          {monthDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 z-50 rounded-lg shadow-lg border overflow-hidden"
+              style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', minWidth: 200 }}>
+              <div className="max-h-[200px] overflow-y-auto p-1.5">
+                {allMonths.map(m => {
+                  const active = selectedMonths.includes(m)
+                  const [y, mo] = m.split('-')
+                  return (
+                    <label key={m} className="flex items-center gap-2 px-3 py-1.5 rounded cursor-pointer hover:bg-[var(--bg-hover)] text-[13px]">
+                      <input type="checkbox" checked={active} onChange={() => toggleMonth(m)}
+                        className="rounded" style={{ accentColor: 'var(--accent)' }} />
+                      <span style={{ color: active ? 'var(--accent)' : 'var(--text)' }}>{+y}年{+mo}月</span>
+                    </label>
+                  )
+                })}
+              </div>
+              <div className="flex justify-between px-3 py-2 border-t" style={{ borderColor: 'var(--border)' }}>
+                <button className="text-[11px] font-medium" style={{ color: 'var(--accent)' }}
+                  onClick={() => setSelectedMonths([...allMonths])}>全选</button>
+                <button className="text-[11px] font-medium" style={{ color: 'var(--text-3)' }}
+                  onClick={() => setSelectedMonths(allMonths.slice(-6))}>近6月</button>
+                <button className="text-[11px] font-medium" style={{ color: 'var(--text-3)' }}
+                  onClick={() => setMonthDropdownOpen(false)}>确定</button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>团队</label>
