@@ -52,7 +52,7 @@ export default function HROverviewPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 mb-6 flex-wrap items-end">
+      <div className="flex gap-3.5 mb-6 flex-wrap items-end">
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>选择月份</label>
           <select className="select-field" value={month} onChange={e => setMonth(e.target.value)}>
@@ -67,6 +67,15 @@ export default function HROverviewPage() {
             <option value="t2">内容组</option>
             <option value="t3">阿康组</option>
             <option value="t4">策划组</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>直接上级</label>
+          <select className="select-field" value={filters.leader} onChange={e => setFilters(f => ({ ...f, leader: e.target.value }))}>
+            <option value="">全部上级</option>
+            <option value="l1">刘向东</option>
+            <option value="l2">赵婉清</option>
+            <option value="l3">车思漫</option>
           </select>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -112,18 +121,18 @@ export default function HROverviewPage() {
           return (
             <div key={t.name} className="card p-4">
               <div className="flex justify-between items-center mb-2">
-                <div className="text-[13px] font-semibold">{t.name}（{t.leader}）</div>
-                <div className="flex gap-1">
+                <span className="text-[13px] font-semibold">{t.name}（{t.leader}）</span>
+                <div className="flex gap-1.5">
                   {t.vacant && <span className="badge badge-amber">轮空</span>}
                   {t.submitted ? <span className="badge badge-green">已提交</span> : (
                     t.done > 0 ? <span className="badge badge-amber">进行中</span> : <span className="badge badge-gray">未开始</span>
                   )}
                 </div>
               </div>
-              <div className="h-[5px] rounded-full overflow-hidden" style={{ background: 'var(--bg-input)' }}>
-                <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+              <div className="h-[5px] bg-[var(--bg-input)] rounded-[3px] overflow-hidden mb-1.5">
+                <div className="h-full rounded-[3px]" style={{ width: `${pct}%`, background: color }} />
               </div>
-              <div className="text-[11px] mt-1.5" style={{ color: 'var(--text-3)' }}>已确认 {t.done}/{t.total} · 均分 {t.avg}</div>
+              <div className="text-[11px]" style={{ color: 'var(--text-3)' }}>已确认 {t.done}/{t.total} · 均分 {t.avg}</div>
             </div>
           )
         })}
@@ -159,8 +168,8 @@ export default function HROverviewPage() {
                     <td className="px-4.5 py-2.5 text-xs" style={{ color: 'var(--text-2)' }}>{r.leader}</td>
                     <td className="px-4.5 py-2.5">
                       <div className="flex items-center gap-1.5">
-                        <div className="flex-1 h-[5px] rounded-full overflow-hidden max-w-[100px]" style={{ background: 'var(--bg-input)' }}>
-                          <div className="h-full rounded-full" style={{ width: `${r.score}%`, background: bc }} />
+                        <div className="flex-1 h-[5px] bg-[var(--bg-input)] rounded-[3px] overflow-hidden max-w-[100px]">
+                          <div className="h-full rounded-[3px]" style={{ width: `${r.score}%`, background: bc }} />
                         </div>
                         <span className="text-[13px] font-bold font-mono min-w-[30px] text-right" style={{ color: bc }}>{r.score.toFixed(1)}</span>
                       </div>

@@ -58,7 +58,7 @@ export default function HRTrendPage() {
         <p className="text-[13px]" style={{ color: 'var(--text-3)' }}>北京破圈 · 月度考评趋势（近6个月）</p>
       </div>
 
-      <div className="flex gap-3 mb-6 flex-wrap items-end">
+      <div className="flex gap-3.5 mb-6 flex-wrap items-end">
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>团队</label>
           <select className="select-field" value={filters.team} onChange={e => setFilters(f => ({ ...f, team: e.target.value }))}>
@@ -67,6 +67,15 @@ export default function HRTrendPage() {
             <option value="t2">内容组</option>
             <option value="t3">阿康组</option>
             <option value="t4">策划组</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>直接上级</label>
+          <select className="select-field" value={filters.leader} onChange={e => setFilters(f => ({ ...f, leader: e.target.value }))}>
+            <option value="">全部上级</option>
+            <option value="l1">刘向东</option>
+            <option value="l2">赵婉清</option>
+            <option value="l3">车思漫</option>
           </select>
         </div>
         <div className="flex flex-col gap-1.5">

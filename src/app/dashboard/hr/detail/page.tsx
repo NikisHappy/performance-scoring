@@ -17,7 +17,7 @@ export default function HRDetailPage() {
   const [month, setMonth] = useState('')
   const [months, setMonths] = useState<string[]>([])
   const [data, setData] = useState<DetailTeam[]>([])
-  const [filters, setFilters] = useState({ team: '', name: '' })
+  const [filters, setFilters] = useState({ team: '', leader: '', name: '' })
 
   useEffect(() => {
     fetch('/api/hr/detail').then(r => r.json()).then(d => {
@@ -46,7 +46,7 @@ export default function HRDetailPage() {
         <p className="text-[13px]" style={{ color: 'var(--text-3)' }}>各组详细评估结果</p>
       </div>
 
-      <div className="flex gap-3 mb-6 flex-wrap items-end">
+      <div className="flex gap-3.5 mb-6 flex-wrap items-end">
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>选择月份</label>
           <select className="select-field" value={month} onChange={e => setMonth(e.target.value)}>
@@ -61,6 +61,15 @@ export default function HRDetailPage() {
             <option value="t2">内容组</option>
             <option value="t3">阿康组</option>
             <option value="t4">策划组</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>直接上级</label>
+          <select className="select-field" value={filters.leader} onChange={e => setFilters(f => ({ ...f, leader: e.target.value }))}>
+            <option value="">全部上级</option>
+            <option value="l1">刘向东</option>
+            <option value="l2">赵婉清</option>
+            <option value="l3">车思漫</option>
           </select>
         </div>
         <div className="flex flex-col gap-1.5">
