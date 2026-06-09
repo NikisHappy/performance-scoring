@@ -13,11 +13,18 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const teamFilter = searchParams.get('team')
   const nameFilter = searchParams.get('name')?.toLowerCase()
+  const monthsParam = searchParams.get('months')
+  const onlyMonths = searchParams.get('onlyMonths')
 
   const allReviews = await db.select().from(reviews)
   const monthsSet = new Set(allReviews.map(r => r.month))
-  const allMonths = [...monthsSet].sort()
-  const months = allMonths.slice(-6)
+  const allMonthsSorted = [...monthsSet].sort()
+
+  if (onlyMonths) {
+    return NextResponse.json({ allMonths: allMonthsSorted })
+  }
+
+  const months = monthsParam ? monthsParam.split(',').filter(m => monthsSet.has(m)).sort() : allMonthsSorted.slice(-6)
 
   const allTeams = await db.select().from(teams)
   const allEmps = (await db.select().from(employees)).filter(e => !e.removedAt)
@@ -77,5 +84,5 @@ export async function GET(request: NextRequest) {
     return { teamName: team.name, leaderName: team.leaderName, avgs }
   })
 
-  return NextResponse.json({ months, avgByMonth, distByMonth, memberTrends, teamAvgs })
+  return NextResponse.json({ months, allMonths: allMonthsSorted, avgByMonth, distByMonth, memberTrends, teamAvgs })
 }

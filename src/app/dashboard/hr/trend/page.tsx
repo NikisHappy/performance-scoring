@@ -16,16 +16,35 @@ interface TrendData {
 export default function HRTrendPage() {
   const [data, setData] = useState<TrendData | null>(null)
   const [filters, setFilters] = useState({ team: '', leader: '', name: '' })
+  const [allMonths, setAllMonths] = useState<string[]>([])
+  const [selectedMonths, setSelectedMonths] = useState<string[]>([])
 
-  useEffect(() => { loadData() }, [filters])
+  useEffect(() => {
+    // Load available months first
+    fetch('/api/hr/trend?onlyMonths=true').then(r => r.json()).then(d => {
+      if (d.allMonths) {
+        setAllMonths(d.allMonths)
+        setSelectedMonths(d.allMonths.slice(-6))
+      }
+    })
+  }, [])
+
+  useEffect(() => { if (selectedMonths.length) loadData() }, [filters, selectedMonths])
 
   async function loadData() {
     const params = new URLSearchParams(filters)
+    if (selectedMonths.length) params.set('months', selectedMonths.join(','))
     const res = await fetch(`/api/hr/trend?${params}`)
     if (res.ok) {
       const d = await res.json()
       setData(d)
     }
+  }
+
+  function toggleMonth(m: string) {
+    setSelectedMonths(prev =>
+      prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m].sort()
+    )
   }
 
   if (!data) return <div className="text-center py-16" style={{ color: 'var(--text-3)' }}>加载中...</div>
@@ -59,6 +78,26 @@ export default function HRTrendPage() {
       </div>
 
       <div className="flex gap-3.5 mb-6 flex-wrap items-end">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>月份（多选）</label>
+          <div className="flex gap-1 flex-wrap max-w-[400px]">
+            {allMonths.map(m => {
+              const active = selectedMonths.includes(m)
+              const [y, mo] = m.split('-')
+              return (
+                <button key={m} onClick={() => toggleMonth(m)}
+                  className="px-2 py-1 rounded text-[11px] font-medium border transition-colors"
+                  style={{
+                    background: active ? 'var(--accent-l)' : 'var(--bg-card)',
+                    color: active ? 'var(--accent)' : 'var(--text-3)',
+                    borderColor: active ? 'var(--accent)' : 'var(--border)',
+                  }}>
+                  {+mo}月
+                </button>
+              )
+            })}
+          </div>
+        </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>团队</label>
           <select className="select-field" value={filters.team} onChange={e => setFilters(f => ({ ...f, team: e.target.value }))}>
