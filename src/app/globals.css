@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f5f6f8;
+  --bg-card: #fff;
+  --bg-input: #f0f1f5;
+  --bg-hover: #ebedf2;
+  --border: #e0e3e8;
+  --border-focus: #4f6ef7;
+  --text: #1a1d26;
+  --text-2: #6b7280;
+  --text-3: #9ca3af;
+  --accent: #4f6ef7;
+  --accent-l: #eef1fe;
+  --accent-d: #3b57d9;
+  --green: #10b981;
+  --green-l: #ecfdf5;
+  --amber: #f59e0b;
+  --amber-l: #fffbeb;
+  --red: #ef4444;
+  --red-l: #fef2f2;
+  --purple: #8b5cf6;
+  --purple-l: #f5f3ff;
+  --R: 10px;
+}
+
+body {
+  font-family: 'Noto Sans SC', 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .badge {
+    @apply text-[11px] font-semibold px-2 py-0.5 rounded inline-block;
+  }
+  .badge-blue {
+    background: var(--accent-l);
+    color: var(--accent);
+  }
+  .badge-green {
+    background: var(--green-l);
+    color: var(--green);
+  }
+  .badge-amber {
+    background: var(--amber-l);
+    color: var(--amber);
+  }
+  .badge-red {
+    background: var(--red-l);
+    color: var(--red);
+  }
+  .badge-purple {
+    background: var(--purple-l);
+    color: var(--purple);
+  }
+  .badge-gray {
+    @apply bg-gray-100 text-gray-400;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--R);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+
+  .btn {
+    @apply border-none rounded-lg px-6 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--accent-d);
+  }
+  .btn-primary:disabled {
+    @apply opacity-35 cursor-not-allowed;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg px-3.5 py-2.5 text-sm font-medium outline-none;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .input-field:focus {
+    border-color: var(--border-focus);
+    background: #fff;
+  }
+
+  .select-field {
+    @apply appearance-none rounded-lg px-3 py-2.5 text-[13px] font-medium cursor-pointer outline-none min-w-[180px];
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit;
+  }
+
+  .rank-badge {
+    @apply w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0;
+    font-family: 'Inter', sans-serif;
+  }
+  .rank-1 {
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+  }
+  .rank-2 {
+    background: linear-gradient(135deg, #94a3b8, #64748b);
+  }
+  .rank-3 {
+    background: linear-gradient(135deg, #d97706, #b45309);
+  }
+  .rank-n {
+    @apply bg-gray-200 text-gray-600;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+  animation: fadeIn 0.25s ease;
+}
