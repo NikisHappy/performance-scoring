@@ -3,8 +3,8 @@ import { defineConfig } from 'drizzle-kit'
 export default defineConfig({
   schema: './src/db/schema.ts',
   out: './drizzle',
-  dialect: 'sqlite',
+  dialect: 'postgresql',
   dbCredentials: {
-    url: './data/perf.db',
+    url: process.env.DATABASE_URL || 'postgresql://perf:perf123@localhost:5432/performance',
   },
 })

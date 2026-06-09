@@ -40,10 +40,10 @@ export async function GET(request: NextRequest) {
     return count
   }
 
-  const allEmps = db.select().from(employees).all()
-  const allTeams = db.select().from(teams).all()
-  const monthReviews = db.select().from(reviews).where(eq(reviews.month, month)).all()
-  const vacancies = db.select().from(teamVacancy).where(eq(teamVacancy.month, month)).all()
+  const allEmps = await db.select().from(employees)
+  const allTeams = await db.select().from(teams)
+  const monthReviews = await db.select().from(reviews).where(eq(reviews.month, month))
+  const vacancies = await db.select().from(teamVacancy).where(eq(teamVacancy.month, month))
 
   const rows: Record<string, unknown>[] = []
 

@@ -14,9 +14,9 @@ export async function GET(request: NextRequest) {
 
   let results
   if (teamId) {
-    results = db.select().from(employees).where(eq(employees.teamId, teamId)).all()
+    results = await db.select().from(employees).where(eq(employees.teamId, teamId))
   } else {
-    results = db.select().from(employees).all()
+    results = await db.select().from(employees)
   }
 
   // Filter out removed employees unless requested
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
   const id = 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)
 
-  db.insert(employees).values({
+  await db.insert(employees).values({
     id,
     name,
     pos,
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     joinDate: joinDate || null,
     perfFullAmount: perfFullAmount ? parseFloat(perfFullAmount) : null,
     entity: entity || null,
-  }).run()
+  })
 
   return NextResponse.json({ success: true, id })
 }
@@ -72,13 +72,13 @@ export async function DELETE(request: NextRequest) {
   const { id, leaveDate } = await request.json()
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
-  db.update(employees)
+  await db.update(employees)
     .set({
       removedAt: new Date().toISOString(),
       leaveDate: leaveDate || new Date().toISOString().slice(0, 10),
     })
     .where(eq(employees.id, id))
-    .run()
+    
 
   return NextResponse.json({ success: true })
 }

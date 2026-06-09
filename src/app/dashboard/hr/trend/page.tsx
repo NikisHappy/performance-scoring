@@ -32,11 +32,18 @@ export default function HRTrendPage() {
 
   const shortMonth = (m: string) => `${+m.split('-')[1]}月`
 
-  const chartData = data.months.map((m, i) => ({
-    month: shortMonth(m),
-    avg: data.avgByMonth[i]?.avg ?? undefined,
-    ...data.distByMonth[i],
-  }))
+  const chartData = data.months.map((m, i) => {
+    const dist = data.distByMonth[i]
+    return {
+      month: shortMonth(m),
+      avg: data.avgByMonth[i]?.avg ?? undefined,
+      s90: dist?.s90 ?? 0,
+      s80: dist?.s80 ?? 0,
+      s70: dist?.s70 ?? 0,
+      s60: dist?.s60 ?? 0,
+      sLow: dist?.sLow ?? 0,
+    }
+  })
 
   const memberChartData = data.months.map((m, i) => {
     const point: Record<string, unknown> = { month: shortMonth(m) }

@@ -14,13 +14,13 @@ export async function GET(request: NextRequest) {
   const teamFilter = searchParams.get('team')
   const nameFilter = searchParams.get('name')?.toLowerCase()
 
-  const allReviews = db.select().from(reviews).all()
+  const allReviews = await db.select().from(reviews)
   const monthsSet = new Set(allReviews.map(r => r.month))
   const allMonths = [...monthsSet].sort()
   const months = allMonths.slice(-6)
 
-  const allTeams = db.select().from(teams).all()
-  const allEmps = db.select().from(employees).all().filter(e => !e.removedAt)
+  const allTeams = await db.select().from(teams)
+  const allEmps = (await db.select().from(employees)).filter(e => !e.removedAt)
 
   // Filter employees
   let filteredEmps = allEmps

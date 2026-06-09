@@ -15,17 +15,17 @@ export async function GET(request: NextRequest) {
   const teamFilter = searchParams.get('team')
   const nameFilter = searchParams.get('name')?.toLowerCase()
 
-  const allReviews = db.select().from(reviews).all()
+  const allReviews = await db.select().from(reviews)
   const monthsSet = new Set(allReviews.map(r => r.month))
   const months = [...monthsSet].sort()
 
   if (!month) return NextResponse.json({ months })
 
-  const allTeams = db.select().from(teams).all()
-  const allEmps = db.select().from(employees).all().filter(e => !e.removedAt)
-  const allDims = db.select().from(dimensions).all()
+  const allTeams = await db.select().from(teams)
+  const allEmps = (await db.select().from(employees)).filter(e => !e.removedAt)
+  const allDims = await db.select().from(dimensions)
   const monthRevs = allReviews.filter(r => r.month === month)
-  const vacancies = db.select().from(teamVacancy).where(eq(teamVacancy.month, month)).all()
+  const vacancies = await db.select().from(teamVacancy).where(eq(teamVacancy.month, month))
   const vacMap: Record<string, boolean> = {}
   vacancies.forEach(v => { vacMap[v.teamId] = !!v.isVacant })
 
@@ -48,17 +48,16 @@ export async function GET(request: NextRequest) {
     const isVacant = !!vacMap[team.id]
     const coeffs = calcTeamCoeffs(tMembers.map(e => ({ id: e.id })), reviewsMap, isVacant)
 
-    const members = tMembers
-      .filter(e => {
-        const rev = reviewsMap.get(e.id)
-        return rev?.confirmed && rev.totalScore != null
-      })
-      .map(e => {
+    const confirmedEmps = tMembers.filter(e => {
+      const rev = reviewsMap.get(e.id)
+      return rev?.confirmed && rev.totalScore != null
+    })
+    const members = await Promise.all(confirmedEmps.map(async (e) => {
         const rev = reviewsMap.get(e.id)!
         const ci = coeffs.find(c => c.employeeId === e.id)
 
         // Get dimension scores
-        const scores = db.select().from(reviewScores).where(eq(reviewScores.reviewId, rev.id)).all()
+        const scores = await db.select().from(reviewScores).where(eq(reviewScores.reviewId, rev.id))
         const dimStrs = scores.map(s => {
           const dim = allDims.find(d => d.id === s.dimensionId)
           return dim ? `${dim.name}:${s.score}` : ''
@@ -77,8 +76,8 @@ export async function GET(request: NextRequest) {
           up: ci?.up || false,
           payable,
         }
-      })
-      .sort((a, b) => b.totalScore - a.totalScore)
+      }))
+    members.sort((a, b) => b.totalScore - a.totalScore)
 
     if (members.length) {
       result.push({ teamName: team.name, leaderName: team.leaderName, vacant: isVacant, month, members })

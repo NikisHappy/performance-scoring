@@ -1,22 +1,22 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core'
+import { pgTable, serial, text, integer, doublePrecision, boolean, varchar } from 'drizzle-orm/pg-core'
 
-export const users = sqliteTable('users', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
   username: text('username').notNull().unique(),
   password: text('password').notNull(),
   name: text('name').notNull(),
-  role: text('role', { enum: ['leader', 'hr', 'admin'] }).notNull(),
+  role: varchar('role', { length: 20 }).notNull(),
   leaderId: text('leader_id'),
 })
 
-export const teams = sqliteTable('teams', {
+export const teams = pgTable('teams', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   leaderId: text('leader_id').notNull(),
   leaderName: text('leader_name').notNull(),
 })
 
-export const employees = sqliteTable('employees', {
+export const employees = pgTable('employees', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   pos: text('pos').notNull(),
@@ -26,13 +26,13 @@ export const employees = sqliteTable('employees', {
   dept: text('dept').default('北京破圈'),
   joinDate: text('join_date'),
   leaveDate: text('leave_date'),
-  perfFullAmount: real('perf_full_amount'),
+  perfFullAmount: doublePrecision('perf_full_amount'),
   entity: text('entity'),
   removedAt: text('removed_at'),
 })
 
-export const dimensions = sqliteTable('dimensions', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const dimensions = pgTable('dimensions', {
+  id: serial('id').primaryKey(),
   posLevel: text('pos_level').notNull(),
   name: text('name').notNull(),
   description: text('description').notNull(),
@@ -41,29 +41,29 @@ export const dimensions = sqliteTable('dimensions', {
   sortOrder: integer('sort_order').notNull().default(0),
 })
 
-export const reviews = sqliteTable('reviews', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const reviews = pgTable('reviews', {
+  id: serial('id').primaryKey(),
   employeeId: text('employee_id').notNull(),
   leaderId: text('leader_id').notNull(),
-  month: text('month').notNull(), // YYYY-MM
-  confirmed: integer('confirmed', { mode: 'boolean' }).default(false),
-  submitted: integer('submitted', { mode: 'boolean' }).default(false),
-  totalScore: real('total_score'),
-  customCoeff: real('custom_coeff'),
+  month: text('month').notNull(),
+  confirmed: boolean('confirmed').default(false),
+  submitted: boolean('submitted').default(false),
+  totalScore: doublePrecision('total_score'),
+  customCoeff: doublePrecision('custom_coeff'),
 })
 
-export const reviewScores = sqliteTable('review_scores', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const reviewScores = pgTable('review_scores', {
+  id: serial('id').primaryKey(),
   reviewId: integer('review_id').notNull(),
   dimensionId: integer('dimension_id').notNull(),
-  score: real('score').notNull(),
+  score: doublePrecision('score').notNull(),
 })
 
-export const teamVacancy = sqliteTable('team_vacancy', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+export const teamVacancy = pgTable('team_vacancy', {
+  id: serial('id').primaryKey(),
   teamId: text('team_id').notNull(),
   month: text('month').notNull(),
-  isVacant: integer('is_vacant', { mode: 'boolean' }).default(false),
+  isVacant: boolean('is_vacant').default(false),
 })
 
 // Type exports

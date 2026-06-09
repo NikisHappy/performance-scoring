@@ -11,9 +11,9 @@ export async function GET() {
   const leaderId = session.leaderId
   if (!leaderId) return NextResponse.json({ error: 'Not a leader' }, { status: 403 })
 
-  const allReviews = db.select().from(reviews).where(eq(reviews.leaderId, leaderId)).all()
-  const leaderTeams = db.select().from(teams).where(eq(teams.leaderId, leaderId)).all()
-  const allEmps = db.select().from(employees).all()
+  const allReviews = await db.select().from(reviews).where(eq(reviews.leaderId, leaderId))
+  const leaderTeams = await db.select().from(teams).where(eq(teams.leaderId, leaderId))
+  const allEmps = await db.select().from(employees)
 
   const teamIds = new Set(leaderTeams.map(t => t.id))
   const myEmps = allEmps.filter(e => teamIds.has(e.teamId) && !e.removedAt)

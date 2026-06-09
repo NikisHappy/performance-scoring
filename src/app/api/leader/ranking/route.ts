@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   const leaderId = session.leaderId
   if (!leaderId) return NextResponse.json({ error: 'Not a leader' }, { status: 403 })
 
-  const allReviews = db.select().from(reviews).where(eq(reviews.leaderId, leaderId)).all()
+  const allReviews = await db.select().from(reviews).where(eq(reviews.leaderId, leaderId))
   const monthsSet = new Set(allReviews.map(r => r.month))
   const months = [...monthsSet].sort()
 
@@ -26,12 +26,12 @@ export async function GET(request: NextRequest) {
   }
 
   // Get ranking for specific month
-  const leaderTeams = db.select().from(teams).where(eq(teams.leaderId, leaderId)).all()
-  const allEmps = db.select().from(employees).all()
-  const monthRevs = db.select().from(reviews)
+  const leaderTeams = await db.select().from(teams).where(eq(teams.leaderId, leaderId))
+  const allEmps = await db.select().from(employees)
+  const monthRevs = await db.select().from(reviews)
     .where(and(eq(reviews.leaderId, leaderId), eq(reviews.month, month)))
-    .all()
-  const vacancies = db.select().from(teamVacancy).where(eq(teamVacancy.month, month)).all()
+    
+  const vacancies = await db.select().from(teamVacancy).where(eq(teamVacancy.month, month))
 
   const vacMap: Record<string, boolean> = {}
   vacancies.forEach(v => { vacMap[v.teamId] = !!v.isVacant })

@@ -16,16 +16,16 @@ export async function GET(request: NextRequest) {
   const nameFilter = searchParams.get('name')?.toLowerCase()
 
   // Get all months
-  const allReviews = db.select().from(reviews).all()
+  const allReviews = await db.select().from(reviews)
   const monthsSet = new Set(allReviews.map(r => r.month))
   const months = [...monthsSet].sort()
 
   if (!month) return NextResponse.json({ months })
 
-  const allTeams = db.select().from(teams).all()
-  const allEmps = db.select().from(employees).all().filter(e => !e.removedAt)
+  const allTeams = await db.select().from(teams)
+  const allEmps = (await db.select().from(employees)).filter(e => !e.removedAt)
   const monthRevs = allReviews.filter(r => r.month === month)
-  const vacancies = db.select().from(teamVacancy).where(eq(teamVacancy.month, month)).all()
+  const vacancies = await db.select().from(teamVacancy).where(eq(teamVacancy.month, month))
   const vacMap: Record<string, boolean> = {}
   vacancies.forEach(v => { vacMap[v.teamId] = !!v.isVacant })
 

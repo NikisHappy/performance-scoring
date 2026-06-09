@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifySession } from '@/lib/auth'
 import { db } from '@/db'
-import { reviews, reviewScores, dimensions, employees, teamVacancy } from '@/db/schema'
+import { reviews, reviewScores, dimensions, employees } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
 
-// GET: Fetch reviews for a given month (optionally filtered by leaderId)
 export async function GET(request: NextRequest) {
   const session = await verifySession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -16,33 +15,26 @@ export async function GET(request: NextRequest) {
 
   if (!month) return NextResponse.json({ error: 'month required' }, { status: 400 })
 
-  let query = db.select().from(reviews).where(eq(reviews.month, month))
-
   let results
   if (leaderId) {
-    results = db.select().from(reviews)
+    results = await db.select().from(reviews)
       .where(and(eq(reviews.month, month), eq(reviews.leaderId, leaderId)))
-      .all()
   } else if (employeeId) {
-    results = db.select().from(reviews)
+    results = await db.select().from(reviews)
       .where(and(eq(reviews.month, month), eq(reviews.employeeId, employeeId)))
-      .all()
   } else {
-    results = db.select().from(reviews).where(eq(reviews.month, month)).all()
+    results = await db.select().from(reviews).where(eq(reviews.month, month))
   }
 
-  // Fetch scores for each review
-  const enriched = results.map(rev => {
-    const scores = db.select().from(reviewScores)
+  const enriched = await Promise.all(results.map(async (rev) => {
+    const scores = await db.select().from(reviewScores)
       .where(eq(reviewScores.reviewId, rev.id))
-      .all()
     return { ...rev, scores }
-  })
+  }))
 
   return NextResponse.json({ reviews: enriched })
 }
 
-// POST: Create or update a review
 export async function POST(request: NextRequest) {
   const session = await verifySession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -59,16 +51,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  // Get employee's dimensions
-  const emp = db.select().from(employees).where(eq(employees.id, employeeId)).get()
+  const [emp] = await db.select().from(employees).where(eq(employees.id, employeeId))
   if (!emp) return NextResponse.json({ error: 'Employee not found' }, { status: 404 })
 
   const posLevel = getDimsKeyFromEmp(emp.pos, emp.level)
-  const dims = db.select().from(dimensions)
-    .where(eq(dimensions.posLevel, posLevel))
-    .all()
+  const dims = await db.select().from(dimensions).where(eq(dimensions.posLevel, posLevel))
 
-  // Calculate total score
   let totalScore: number | null = null
   if (dimScores && dimScores.length === dims.length) {
     totalScore = 0
@@ -78,55 +66,48 @@ export async function POST(request: NextRequest) {
     totalScore = Math.round(totalScore * 10) / 10
   }
 
-  // Upsert review
-  const existing = db.select().from(reviews)
+  const [existing] = await db.select().from(reviews)
     .where(and(eq(reviews.employeeId, employeeId), eq(reviews.month, month), eq(reviews.leaderId, leaderId)))
-    .get()
 
   let reviewId: number
 
   if (existing) {
-    db.update(reviews)
+    await db.update(reviews)
       .set({
         confirmed: confirmed ?? existing.confirmed,
         totalScore,
         customCoeff: customCoeff ?? existing.customCoeff,
       })
       .where(eq(reviews.id, existing.id))
-      .run()
     reviewId = existing.id
-
-    // Delete old scores
-    db.delete(reviewScores).where(eq(reviewScores.reviewId, reviewId)).run()
+    await db.delete(reviewScores).where(eq(reviewScores.reviewId, reviewId))
   } else {
-    const result = db.insert(reviews).values({
+    const [inserted] = await db.insert(reviews).values({
       employeeId,
       leaderId,
       month,
       confirmed: confirmed ?? false,
       totalScore,
       customCoeff,
-    }).run()
-    reviewId = Number(result.lastInsertRowid)
+    }).returning()
+    reviewId = inserted.id
   }
 
-  // Insert new scores
   if (dimScores && dimScores.length) {
-    dims.forEach((d, i) => {
+    for (let i = 0; i < dims.length; i++) {
       if (dimScores[i] != null) {
-        db.insert(reviewScores).values({
+        await db.insert(reviewScores).values({
           reviewId,
-          dimensionId: d.id,
+          dimensionId: dims[i].id,
           score: dimScores[i],
-        }).run()
+        })
       }
-    })
+    }
   }
 
   return NextResponse.json({ success: true, reviewId, totalScore })
 }
 
-// PUT: Submit all reviews for a month (leader)
 export async function PUT(request: NextRequest) {
   const session = await verifySession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -136,10 +117,9 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
   }
 
-  db.update(reviews)
+  await db.update(reviews)
     .set({ submitted: true })
     .where(and(eq(reviews.month, month), eq(reviews.leaderId, leaderId)))
-    .run()
 
   return NextResponse.json({ success: true })
 }

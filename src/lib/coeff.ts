@@ -1,6 +1,3 @@
-import { db } from '@/db'
-import { reviews, teamVacancy } from '@/db/schema'
-import { eq, and } from 'drizzle-orm'
 import type { Review } from '@/db/schema'
 
 /**
@@ -74,11 +71,4 @@ export function getDimsKey(pos: string, level: string): string {
   if (pos === '阿康') return '阿康_' + (level === 'AM' ? 'AM' : 'AE')
   if (pos === '策划') return '策划_I3'
   return ''
-}
-
-export async function getTeamVacancy(teamId: string, month: string): Promise<boolean> {
-  const record = db.select().from(teamVacancy)
-    .where(and(eq(teamVacancy.teamId, teamId), eq(teamVacancy.month, month)))
-    .get()
-  return !!record?.isVacant
 }

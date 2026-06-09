@@ -37,7 +37,7 @@ export async function verifySession(): Promise<SessionPayload | null> {
 }
 
 export async function login(username: string, password: string): Promise<SessionPayload | null> {
-  const user = db.select().from(users).where(eq(users.username, username)).get()
+  const [user] = await db.select().from(users).where(eq(users.username, username))
   if (!user) return null
 
   const valid = compareSync(password, user.password)

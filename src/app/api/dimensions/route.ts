@@ -7,8 +7,8 @@ export async function GET() {
   const session = await verifySession()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const allDims = db.select().from(dimensions).all()
-  const allTeams = db.select().from(teams).all()
+  const allDims = await db.select().from(dimensions)
+  const allTeams = await db.select().from(teams)
 
   return NextResponse.json({ dimensions: allDims, teams: allTeams })
 }

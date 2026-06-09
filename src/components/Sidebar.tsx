@@ -1,3 +1,4 @@
+import React from "react"
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
@@ -21,7 +22,7 @@ const adminExtra = [
 ]
 
 function NavIcon({ icon }: { icon: string }) {
-  const icons: Record<string, JSX.Element> = {
+  const icons: Record<string, React.ReactElement> = {
     score: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>,
     rank: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M12 20V10" /><path d="M18 20V4" /><path d="M6 20v-4" /></svg>,
     trend: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>,
