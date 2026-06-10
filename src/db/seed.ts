@@ -85,7 +85,10 @@ async function seed() {
     CREATE TABLE IF NOT EXISTS period_status (
       id SERIAL PRIMARY KEY,
       month TEXT NOT NULL UNIQUE,
-      is_open BOOLEAN DEFAULT TRUE
+      is_open BOOLEAN DEFAULT TRUE,
+      name TEXT,
+      start_date TEXT,
+      end_date TEXT
     );
   `)
 

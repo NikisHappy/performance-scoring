@@ -79,6 +79,9 @@ export const periodStatus = pgTable('period_status', {
   id: serial('id').primaryKey(),
   month: text('month').notNull().unique(),
   isOpen: boolean('is_open').default(true),
+  name: text('name'),
+  startDate: text('start_date'),
+  endDate: text('end_date'),
 })
 
 export type PeriodStatus = typeof periodStatus.$inferSelect

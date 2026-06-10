@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   const allEmpsRaw = await db.select().from(employees)
   const allEmps = allEmpsRaw.filter(e => {
     if (!e.removedAt) return true
-    if (!e.leaveDate) return false
+    if (!e.leaveDate) return true // no leave date recorded — keep history rather than hiding it
     return e.leaveDate.slice(0, 7) >= month
   })
   const monthRevs = allReviews.filter(r => r.month === month)

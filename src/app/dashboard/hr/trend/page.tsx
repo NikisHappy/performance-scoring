@@ -215,6 +215,7 @@ export default function HRTrendPage() {
                       strokeOpacity={activeLine ? (activeLine === mt.name ? 1 : 0.1) : 0.4}
                       dot={{ r: activeLine === mt.name ? 4 : 2 }}
                       connectNulls
+                      onClick={(_, e) => { (e as unknown as Event)?.stopPropagation?.(); setActiveLine(mt.name) }}
                       activeDot={{ r: 5, strokeWidth: 2, onClick: () => setActiveLine(mt.name) }}
                       style={{ cursor: 'pointer' }}
                     />

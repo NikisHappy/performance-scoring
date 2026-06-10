@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     const teamMembers = allEmps.filter(e => {
       if (e.teamId !== team.id) return false
       if (!e.removedAt) return true
-      if (!e.leaveDate) return false
+      if (!e.leaveDate) return true // no leave date recorded — keep history rather than hiding it
       return e.leaveDate.slice(0, 7) >= month
     })
     const reviewsMap = new Map<string, Review>()

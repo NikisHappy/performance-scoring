@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   // employee counts toward a given month if active or left on/after that month
   const activeInMonth = (emp: typeof allEmps[number], month: string) => {
     if (!emp.removedAt) return true
-    if (!emp.leaveDate) return false
+    if (!emp.leaveDate) return true // no leave date recorded — keep history rather than hiding it
     return emp.leaveDate.slice(0, 7) >= month
   }
 

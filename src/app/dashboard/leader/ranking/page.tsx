@@ -115,7 +115,7 @@ export default function LeaderRankingPage() {
               <thead>
                 <tr className="bg-[#fafbfc]">
                   <th className="pl-8 pr-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide w-[50px]" style={{ color: 'var(--text-3)' }}>排名</th>
-                  <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>姓名</th>
+                  <th className="pl-8 pr-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>姓名</th>
                   <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>级别</th>
                   <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>得分</th>
                   <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>系数</th>
@@ -128,7 +128,7 @@ export default function LeaderRankingPage() {
                   return (
                     <tr key={m.employeeId} style={{ background: m.up ? '#f0fdf4' : undefined, borderBottom: '1px solid #f3f4f6' }}>
                       <td className="pl-8 pr-4.5 py-2.5"><div className={`rank-badge ${rc}`}>{i + 1}</div></td>
-                      <td className="px-4.5 py-2.5 text-xs font-semibold">{m.name}</td>
+                      <td className="pl-8 pr-4.5 py-2.5 text-xs font-semibold">{m.name}</td>
                       <td className="px-4.5 py-2.5 text-xs" style={{ color: 'var(--text-2)' }}>{m.level}</td>
                       <td className="px-4.5 py-2.5">
                         <div className="flex items-center gap-1.5">
