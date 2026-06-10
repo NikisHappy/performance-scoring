@@ -61,6 +61,9 @@ export default function LeaderReviewPage() {
   const [localScores, setLocalScores] = useState<Record<string, Record<number, number | null>>>({})
   const [toast, setToast] = useState<{ msg: string; type: string } | null>(null)
   const [user, setUser] = useState<{ name: string; leaderId: string } | null>(null)
+  const [filterTeam, setFilterTeam] = useState('')
+  const [filterName, setFilterName] = useState('')
+  const [filterStatus, setFilterStatus] = useState('')  // '' | 'done' | 'pending'
 
   const showToast = (msg: string, type: string) => {
     setToast({ msg, type })
@@ -242,17 +245,24 @@ export default function LeaderReviewPage() {
     router.push('/dashboard/leader/ranking')
   }
 
+  // Apply filters
+  let filteredEmployees = employees
+  if (filterTeam) filteredEmployees = filteredEmployees.filter(e => e.teamId === filterTeam)
+  if (filterName) filteredEmployees = filteredEmployees.filter(e => e.name.includes(filterName))
+  if (filterStatus === 'done') filteredEmployees = filteredEmployees.filter(e => reviewsMap.get(e.id)?.confirmed)
+  if (filterStatus === 'pending') filteredEmployees = filteredEmployees.filter(e => !reviewsMap.get(e.id)?.confirmed)
+
   // Group employees by team
   const teamGroups: Record<string, Employee[]> = {}
-  employees.forEach(emp => {
+  filteredEmployees.forEach(emp => {
     if (!teamGroups[emp.teamId]) teamGroups[emp.teamId] = []
     teamGroups[emp.teamId].push(emp)
   })
 
-  const confirmedCount = employees.filter(e => reviewsMap.get(e.id)?.confirmed).length
+  const confirmedCount = filteredEmployees.filter(e => reviewsMap.get(e.id)?.confirmed).length
   const avgScore = (() => {
     let sum = 0, cnt = 0
-    employees.forEach(e => {
+    filteredEmployees.forEach(e => {
       const rev = reviewsMap.get(e.id)
       if (rev?.confirmed && rev.totalScore != null) { sum += rev.totalScore; cnt++ }
     })
@@ -277,6 +287,26 @@ export default function LeaderReviewPage() {
             value={month}
             onChange={e => setMonth(e.target.value)}
           />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>组别</label>
+          <select className="select-field" value={filterTeam} onChange={e => setFilterTeam(e.target.value)}>
+            <option value="">全部组别</option>
+            {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>姓名</label>
+          <input type="text" className="input-field" placeholder="搜索姓名" style={{ width: 120 }}
+            value={filterName} onChange={e => setFilterName(e.target.value)} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>打分状态</label>
+          <select className="select-field" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+            <option value="">全部</option>
+            <option value="done">已完成</option>
+            <option value="pending">未完成</option>
+          </select>
         </div>
       </div>
 

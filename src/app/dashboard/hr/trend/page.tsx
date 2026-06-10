@@ -153,17 +153,27 @@ export default function HRTrendPage() {
             <div className="card p-5">
               <h4 className="text-[13px] font-semibold mb-4">月度评分分布</h4>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={chartData} barSize={20}>
+                <BarChart data={chartData} barSize={32}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="s90" name="90-100分" fill="#8b5cf6" stackId="a" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="s80" name="80-89分" fill="#10b981" stackId="a" />
-                  <Bar dataKey="s70" name="70-79分" fill="#f59e0b" stackId="a" />
-                  <Bar dataKey="s60" name="60-69分" fill="#f97316" stackId="a" />
-                  <Bar dataKey="sLow" name="<60分" fill="#ef4444" stackId="a" />
+                  <Bar dataKey="s90" name="90-100分" fill="#8b5cf6" stackId="a" radius={[4, 4, 4, 4]}>
+                    <LabelList dataKey="s90" position="center" style={{ fontSize: 10, fill: '#fff', fontWeight: 600 }} formatter={(v: number) => v > 0 ? v : ''} />
+                  </Bar>
+                  <Bar dataKey="s80" name="80-89分" fill="#10b981" stackId="a" radius={[4, 4, 4, 4]}>
+                    <LabelList dataKey="s80" position="center" style={{ fontSize: 10, fill: '#fff', fontWeight: 600 }} formatter={(v: number) => v > 0 ? v : ''} />
+                  </Bar>
+                  <Bar dataKey="s70" name="70-79分" fill="#f59e0b" stackId="a" radius={[4, 4, 4, 4]}>
+                    <LabelList dataKey="s70" position="center" style={{ fontSize: 10, fill: '#fff', fontWeight: 600 }} formatter={(v: number) => v > 0 ? v : ''} />
+                  </Bar>
+                  <Bar dataKey="s60" name="60-69分" fill="#f97316" stackId="a" radius={[4, 4, 4, 4]}>
+                    <LabelList dataKey="s60" position="center" style={{ fontSize: 10, fill: '#fff', fontWeight: 600 }} formatter={(v: number) => v > 0 ? v : ''} />
+                  </Bar>
+                  <Bar dataKey="sLow" name="<60分" fill="#ef4444" stackId="a" radius={[4, 4, 4, 4]}>
+                    <LabelList dataKey="sLow" position="center" style={{ fontSize: 10, fill: '#fff', fontWeight: 600 }} formatter={(v: number) => v > 0 ? v : ''} />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -188,7 +198,7 @@ export default function HRTrendPage() {
             <h4 className="text-[13px] font-semibold mb-4">个人多月考评趋势</h4>
             <div className="relative">
               {activeLine && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
                   <span className="text-[14px] font-bold px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.9)', color: 'var(--accent)', border: '1px solid var(--accent)' }}>
                     {activeLine}
                   </span>

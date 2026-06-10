@@ -159,7 +159,38 @@ export default function PermissionsPage() {
       {/* Period management */}
       <div className="card p-5 mb-6" style={{ borderRadius: '12px' }}>
         <h3 className="text-sm font-semibold mb-3">考评周期管理</h3>
-        <p className="text-xs mb-4" style={{ color: 'var(--text-2)' }}>开启周期后 Leader 可修改评分数据，关闭后数据锁定不可修改。</p>
+        <p className="text-xs mb-4" style={{ color: 'var(--text-2)' }}>新增或管理考评周期，开启后 Leader 可修改评分数据，关闭后数据锁定不可修改。</p>
+        
+        {/* Add new period */}
+        <div className="flex gap-2.5 items-end mb-4 p-3 rounded-lg flex-wrap" style={{ background: 'var(--bg-input)' }}>
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-semibold uppercase" style={{ color: 'var(--text-3)' }}>周期名称</label>
+            <input type="text" className="input-field" style={{ width: 140 }} placeholder="如：2026年6月" id="newPeriodName" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-semibold uppercase" style={{ color: 'var(--text-3)' }}>开始时间</label>
+            <input type="date" className="input-field" style={{ width: 150 }} id="newPeriodStart" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-semibold uppercase" style={{ color: 'var(--text-3)' }}>结束时间</label>
+            <input type="date" className="input-field" style={{ width: 150 }} id="newPeriodEnd" />
+          </div>
+          <button className="btn btn-primary" style={{ padding: '7px 18px' }}
+            onClick={async () => {
+              const nameInput = document.getElementById('newPeriodName') as HTMLInputElement
+              const startInput = document.getElementById('newPeriodStart') as HTMLInputElement
+              const endInput = document.getElementById('newPeriodEnd') as HTMLInputElement
+              if (!nameInput.value) { showToast('请填写周期名称', 'red'); return }
+              if (!startInput.value || !endInput.value) { showToast('请选择起止时间', 'red'); return }
+              // Use the name as month identifier, or extract month from start date
+              const month = startInput.value.slice(0, 7) // YYYY-MM format
+              await togglePeriod(month, true)
+              nameInput.value = ''
+              startInput.value = ''
+              endInput.value = ''
+            }}>新增周期</button>
+        </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {periods.map(p => (
             <div key={p.month} className="flex items-center justify-between px-3 py-2.5 rounded-lg border"

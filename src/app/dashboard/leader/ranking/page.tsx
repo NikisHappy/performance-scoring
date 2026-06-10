@@ -20,6 +20,8 @@ export default function LeaderRankingPage() {
   const [months, setMonths] = useState<string[]>([])
   const [data, setData] = useState<Record<string, ReviewSummary[]>>({})
   const [vacancies, setVacancies] = useState<Record<string, boolean>>({})
+  const [filterTeam, setFilterTeam] = useState('')
+  const [filterName, setFilterName] = useState('')
 
   useEffect(() => {
     loadData()
@@ -68,13 +70,35 @@ export default function LeaderRankingPage() {
             ))}
           </select>
         </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>组别</label>
+          <select className="select-field" value={filterTeam} onChange={e => setFilterTeam(e.target.value)}>
+            <option value="">全部组别</option>
+            {Object.keys(data).map(teamName => <option key={teamName} value={teamName}>{teamName}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>姓名</label>
+          <input type="text" className="input-field" placeholder="搜索姓名" style={{ width: 120 }}
+            value={filterName} onChange={e => setFilterName(e.target.value)} />
+        </div>
       </div>
 
       {Object.entries(data).length === 0 && (
         <div className="text-center py-16" style={{ color: 'var(--text-3)' }}>暂无数据</div>
       )}
 
-      {Object.entries(data).map(([teamName, members]) => {
+      {(() => {
+        const filteredData: Record<string, ReviewSummary[]> = Object.fromEntries(
+          Object.entries(data)
+            .filter(([teamName]) => !filterTeam || teamName === filterTeam)
+            .map(([teamName, members]) => [
+              teamName,
+              filterName ? members.filter(m => m.name.includes(filterName)) : members
+            ])
+            .filter(([, members]) => (members as ReviewSummary[]).length > 0)
+        )
+        return Object.entries(filteredData).map(([teamName, members]) => {
         const teamId = members[0]?.teamId
         const isVacant = teamId ? vacancies[teamId] : false
 
@@ -90,7 +114,7 @@ export default function LeaderRankingPage() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-[#fafbfc]">
-                  <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide w-[50px]" style={{ color: 'var(--text-3)' }}>排名</th>
+                  <th className="pl-8 pr-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide w-[50px]" style={{ color: 'var(--text-3)' }}>排名</th>
                   <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>姓名</th>
                   <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>级别</th>
                   <th className="px-4.5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>得分</th>
@@ -103,7 +127,7 @@ export default function LeaderRankingPage() {
                   const rc = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'
                   return (
                     <tr key={m.employeeId} style={{ background: m.up ? '#f0fdf4' : undefined, borderBottom: '1px solid #f3f4f6' }}>
-                      <td className="px-4.5 py-2.5"><div className={`rank-badge ${rc}`}>{i + 1}</div></td>
+                      <td className="pl-8 pr-4.5 py-2.5"><div className={`rank-badge ${rc}`}>{i + 1}</div></td>
                       <td className="px-4.5 py-2.5 text-xs font-semibold">{m.name}</td>
                       <td className="px-4.5 py-2.5 text-xs" style={{ color: 'var(--text-2)' }}>{m.level}</td>
                       <td className="px-4.5 py-2.5">
@@ -126,7 +150,8 @@ export default function LeaderRankingPage() {
             </table>
           </div>
         )
-      })}
+      })
+      })()}
     </div>
   )
 }

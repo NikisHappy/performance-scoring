@@ -13,6 +13,8 @@ interface TrendData {
 
 export default function LeaderTrendPage() {
   const [data, setData] = useState<TrendData | null>(null)
+  const [filterTeam, setFilterTeam] = useState('')
+  const [filterName, setFilterName] = useState('')
 
   useEffect(() => {
     fetch('/api/leader/trend')
@@ -34,10 +36,15 @@ export default function LeaderTrendPage() {
 
   const shortMonth = (m: string) => (+m.split('-')[1]) + '月'
 
+  // Apply filters
+  const filteredMembers = data.members
+    .filter(m => !filterTeam || m.team === filterTeam)
+    .filter(m => !filterName || m.name.includes(filterName))
+
   // Prepare line chart data
   const lineData = data.months.map((m, i) => {
     const point: Record<string, unknown> = { month: shortMonth(m) }
-    data.members.forEach(mem => {
+    filteredMembers.forEach(mem => {
       point[mem.name] = mem.scores[i]
     })
     return point
@@ -58,6 +65,21 @@ export default function LeaderTrendPage() {
       <div className="mb-7">
         <h1 className="text-[22px] font-bold mb-1">趋势看板</h1>
         <p className="text-[13px]" style={{ color: 'var(--text-3)' }}>团队月度考评趋势（近6个月）</p>
+      </div>
+
+      <div className="flex gap-3.5 mb-6 flex-wrap items-end">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>组别</label>
+          <select className="select-field" value={filterTeam} onChange={e => setFilterTeam(e.target.value)}>
+            <option value="">全部组别</option>
+            {[...new Set(data.members.map(m => m.team))].map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-3)' }}>姓名</label>
+          <input type="text" className="input-field" placeholder="搜索姓名" style={{ width: 120 }}
+            value={filterName} onChange={e => setFilterName(e.target.value)} />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
@@ -88,7 +110,7 @@ export default function LeaderTrendPage() {
               <YAxis domain={[40, 100]} tick={{ fontSize: 10, fill: '#9ca3af' }} />
               <Tooltip contentStyle={{ fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              {data.members.map((mem, i) => (
+              {filteredMembers.map((mem, i) => (
                 <Line
                   key={mem.id}
                   type="monotone"
@@ -121,7 +143,7 @@ export default function LeaderTrendPage() {
             </tr>
           </thead>
           <tbody>
-            {data.members.map(mem => {
+            {filteredMembers.map(mem => {
               const vals = mem.scores.filter((s): s is number => s != null)
               let trend = '—'
               if (vals.length >= 2) {
