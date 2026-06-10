@@ -42,7 +42,12 @@ export async function GET(request: NextRequest) {
   }>> = {}
 
   for (const team of leaderTeams) {
-    const teamMembers = allEmps.filter(e => e.teamId === team.id && !e.removedAt)
+    const teamMembers = allEmps.filter(e => {
+      if (e.teamId !== team.id) return false
+      if (!e.removedAt) return true
+      if (!e.leaveDate) return false
+      return e.leaveDate.slice(0, 7) >= month
+    })
     const reviewsMap = new Map<string, Review>()
     for (const emp of teamMembers) {
       const rev = monthRevs.find(r => r.employeeId === emp.id)

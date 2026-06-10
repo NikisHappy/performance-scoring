@@ -22,7 +22,11 @@ export async function GET(request: NextRequest) {
   if (!month) return NextResponse.json({ months })
 
   const allTeams = await db.select().from(teams)
-  const allEmps = (await db.select().from(employees)).filter(e => !e.removedAt)
+  const allEmps = (await db.select().from(employees)).filter(e => {
+    if (!e.removedAt) return true
+    if (!e.leaveDate) return false
+    return e.leaveDate.slice(0, 7) >= month
+  })
   const allDims = await db.select().from(dimensions)
   const monthRevs = allReviews.filter(r => r.month === month)
   const vacancies = await db.select().from(teamVacancy).where(eq(teamVacancy.month, month))

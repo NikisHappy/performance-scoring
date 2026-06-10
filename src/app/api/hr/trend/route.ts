@@ -27,9 +27,17 @@ export async function GET(request: NextRequest) {
   const months = monthsParam ? monthsParam.split(',').filter(m => monthsSet.has(m)).sort() : allMonthsSorted.slice(-6)
 
   const allTeams = await db.select().from(teams)
-  const allEmps = (await db.select().from(employees)).filter(e => !e.removedAt)
+  // Keep removed employees so their historical data (up to their leave month) stays visible.
+  const allEmps = await db.select().from(employees)
 
-  // Filter employees
+  // employee counts toward a given month if active or left on/after that month
+  const activeInMonth = (emp: typeof allEmps[number], month: string) => {
+    if (!emp.removedAt) return true
+    if (!emp.leaveDate) return false
+    return emp.leaveDate.slice(0, 7) >= month
+  }
+
+  // Filter employees (current roster filters; month-level activity handled per data point)
   let filteredEmps = allEmps
   if (teamFilter) filteredEmps = filteredEmps.filter(e => e.teamId === teamFilter)
   if (nameFilter) filteredEmps = filteredEmps.filter(e => e.name.toLowerCase().includes(nameFilter))
@@ -60,14 +68,16 @@ export async function GET(request: NextRequest) {
     return d
   })
 
-  // Member trends
-  const memberTrends = filteredEmps.map(emp => ({
-    name: emp.name,
-    scores: months.map(m => {
-      const rev = allReviews.find(r => r.month === m && r.employeeId === emp.id)
-      return rev?.confirmed && rev.totalScore != null ? rev.totalScore : null
-    })
-  }))
+  // Member trends (skip employees who already left before the entire selected range)
+  const memberTrends = filteredEmps
+    .filter(emp => months.some(m => activeInMonth(emp, m)))
+    .map(emp => ({
+      name: emp.name,
+      scores: months.map(m => {
+        const rev = allReviews.find(r => r.month === m && r.employeeId === emp.id)
+        return rev?.confirmed && rev.totalScore != null ? rev.totalScore : null
+      })
+    }))
 
   // Team avgs
   const filteredTeams = allTeams.filter(t => !teamFilter || t.id === teamFilter)

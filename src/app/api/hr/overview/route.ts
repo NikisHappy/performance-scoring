@@ -23,7 +23,13 @@ export async function GET(request: NextRequest) {
   if (!month) return NextResponse.json({ months })
 
   const allTeams = await db.select().from(teams)
-  const allEmps = (await db.select().from(employees)).filter(e => !e.removedAt)
+  // Keep removed employees, but only count them in months up to (and including) their leave month.
+  const allEmpsRaw = await db.select().from(employees)
+  const allEmps = allEmpsRaw.filter(e => {
+    if (!e.removedAt) return true
+    if (!e.leaveDate) return false
+    return e.leaveDate.slice(0, 7) >= month
+  })
   const monthRevs = allReviews.filter(r => r.month === month)
   const vacancies = await db.select().from(teamVacancy).where(eq(teamVacancy.month, month))
   const vacMap: Record<string, boolean> = {}

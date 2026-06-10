@@ -16,7 +16,8 @@ export async function GET() {
   const allEmps = await db.select().from(employees)
 
   const teamIds = new Set(leaderTeams.map(t => t.id))
-  const myEmps = allEmps.filter(e => teamIds.has(e.teamId) && !e.removedAt)
+  // Keep removed employees so their historical trend (up to leave month) stays visible.
+  const myEmps = allEmps.filter(e => teamIds.has(e.teamId))
 
   // Get last 6 months
   const monthsSet = new Set(allReviews.map(r => r.month))
@@ -26,7 +27,7 @@ export async function GET() {
     return NextResponse.json({ months: [], members: [], distribution: [] })
   }
 
-  // Build member trend data
+  // Build member trend data (drop members with no data in the visible range)
   const members = myEmps.map(emp => {
     const team = leaderTeams.find(t => t.id === emp.teamId)
     const scores = months.map(m => {
@@ -34,7 +35,7 @@ export async function GET() {
       return rev?.totalScore ?? null
     })
     return { id: emp.id, name: emp.name, team: team?.name || '', scores }
-  })
+  }).filter(m => !m.scores.every(s => s === null) || !allEmps.find(e => e.id === m.id)?.removedAt)
 
   // Build distribution data
   const distribution = months.map(m => {
