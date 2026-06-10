@@ -15,10 +15,17 @@ export async function POST(request: NextRequest) {
   }
 
   const token = await createSession(session)
+
+  // 根据当前请求是否走 HTTPS 决定 secure，
+  // 这样 HTTPS 域名访问仍然安全，HTTP 局域网访问也能正常设置 cookie。
+  const isHttps =
+    request.nextUrl.protocol === 'https:' ||
+    request.headers.get('x-forwarded-proto') === 'https'
+
   const cookieStore = await cookies()
   cookieStore.set('session', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isHttps,
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
