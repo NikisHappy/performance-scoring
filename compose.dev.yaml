@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: perf
+      POSTGRES_PASSWORD: perf123
+      POSTGRES_DB: performance
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata-dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U perf -d performance"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://perf:perf123@db:5432/performance
+      - JWT_SECRET=perf-scoring-dev-secret
+      # 允许局域网/其他来源访问 dev server
+      - HOSTNAME=0.0.0.0
+      # macOS/Docker bind mount 不传递 inotify 事件，改用轮询触发热更新(HMR)
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - .:/app
+      # 用匿名卷隔离容器内 node_modules，避免被宿主机目录覆盖
+      - /app/node_modules
+    # 安装依赖 -> 仅在数据库为空时 seed -> 启动 dev server(热重载)
+    command: >
+      sh -c "npm install &&
+      NEEDS_SEED=$$(node -e \"const{Pool}=require('pg');const p=new Pool({connectionString:process.env.DATABASE_URL});p.query('SELECT COUNT(*) FROM users').then(r=>{console.log(r.rows[0].count==='0'?'yes':'no');p.end()}).catch(()=>{console.log('yes');p.end()})\" 2>/dev/null || echo yes) &&
+      if [ \"$$NEEDS_SEED\" = yes ]; then echo 'seeding...'; npx tsx src/db/seed.ts; else echo 'db has data, skip seed'; fi &&
+      npm run dev -- -H 0.0.0.0"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata-dev:

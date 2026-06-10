@@ -205,7 +205,7 @@ export default function HRTrendPage() {
                 </div>
               )}
               <ResponsiveContainer width="100%" height={320}>
-                <LineChart data={memberChartData} onClick={() => setActiveLine(null)}>
+                <LineChart data={memberChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis domain={[40, 100]} tick={{ fontSize: 11 }} />
@@ -215,8 +215,9 @@ export default function HRTrendPage() {
                       strokeOpacity={activeLine ? (activeLine === mt.name ? 1 : 0.1) : 0.4}
                       dot={{ r: activeLine === mt.name ? 4 : 2 }}
                       connectNulls
-                      onClick={(_, e) => { (e as unknown as Event)?.stopPropagation?.(); setActiveLine(mt.name) }}
-                      activeDot={{ r: 5, strokeWidth: 2, onClick: () => setActiveLine(mt.name) }}
+                      onMouseEnter={() => setActiveLine(mt.name)}
+                      onMouseLeave={() => setActiveLine(null)}
+                      activeDot={{ r: 5, strokeWidth: 2 }}
                       style={{ cursor: 'pointer' }}
                     />
                   ))}
