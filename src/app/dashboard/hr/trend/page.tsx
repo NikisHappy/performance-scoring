@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts'
+import InteractiveLineChart from '@/components/InteractiveLineChart'
 
 const COLORS = ['#4f6ef7', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#14b8a6', '#f97316', '#6366f1']
 
@@ -19,7 +20,6 @@ export default function HRTrendPage() {
   const [allMonths, setAllMonths] = useState<string[]>([])
   const [selectedMonths, setSelectedMonths] = useState<string[]>([])
   const [monthDropdownOpen, setMonthDropdownOpen] = useState(false)
-  const [activeLine, setActiveLine] = useState<string | null>(null)
 
   useEffect(() => {
     // Load available months first
@@ -64,12 +64,6 @@ export default function HRTrendPage() {
       s60: dist?.s60 ?? 0,
       sLow: dist?.sLow ?? 0,
     }
-  })
-
-  const memberChartData = data.months.map((m, i) => {
-    const point: Record<string, unknown> = { month: shortMonth(m) }
-    data.memberTrends.forEach(mt => { point[mt.name] = mt.scores[i] })
-    return point
   })
 
   return (
@@ -195,35 +189,18 @@ export default function HRTrendPage() {
           </div>
 
           <div className="card p-5 mb-6">
-            <h4 className="text-[13px] font-semibold mb-4">个人多月考评趋势</h4>
-            <div className="relative">
-              {activeLine && (
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-                  <span className="text-[14px] font-bold px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.9)', color: 'var(--accent)', border: '1px solid var(--accent)' }}>
-                    {activeLine}
-                  </span>
-                </div>
-              )}
-              <ResponsiveContainer width="100%" height={320}>
-                <LineChart data={memberChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                  <YAxis domain={[40, 100]} tick={{ fontSize: 11 }} />
-                  {data.memberTrends.map((mt, i) => (
-                    <Line key={mt.name} type="linear" dataKey={mt.name} stroke={COLORS[i % COLORS.length]}
-                      strokeWidth={activeLine === mt.name ? 3 : 1.5}
-                      strokeOpacity={activeLine ? (activeLine === mt.name ? 1 : 0.1) : 0.4}
-                      dot={{ r: activeLine === mt.name ? 4 : 2 }}
-                      connectNulls
-                      onMouseEnter={() => setActiveLine(mt.name)}
-                      onMouseLeave={() => setActiveLine(null)}
-                      activeDot={{ r: 5, strokeWidth: 2 }}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+            <h4 className="text-[13px] font-semibold mb-4">个人多月考评趋势（悬停折线查看姓名）</h4>
+            <InteractiveLineChart
+              months={data.months}
+              members={data.memberTrends.map((mt, i) => ({
+                name: mt.name,
+                color: COLORS[i % COLORS.length],
+                scores: mt.scores,
+              }))}
+              yMin={40}
+              yMax={100}
+              height={320}
+            />
           </div>
 
           <div className="card overflow-hidden" style={{ borderRadius: '12px' }}>
