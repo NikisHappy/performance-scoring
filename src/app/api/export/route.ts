@@ -5,6 +5,7 @@ import { employees, reviews, teams, teamVacancy } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { calcTeamCoeffs } from '@/lib/coeff'
 import type { Review } from '@/db/schema'
+import * as XLSX from 'xlsx'
 
 export async function GET(request: NextRequest) {
   const session = await verifySession()
@@ -106,13 +107,20 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  return NextResponse.json({
-    rows,
-    meta: {
-      month,
-      workDays,
-      periodStart: `${year}年${mon}月1日`,
-      periodEnd: `${year}年${mon}月${daysInMonth}日`,
+  // Build Excel workbook
+  const ws = XLSX.utils.json_to_sheet(rows)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, `${month}绩效`)
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer
+  const body = new Uint8Array(buf)
+
+  const filename = `绩效发放_${month}.xlsx`
+  return new NextResponse(body, {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename="performance_${month}.xlsx"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+      'Content-Length': String(body.length),
     },
   })
 }
