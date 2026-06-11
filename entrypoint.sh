@@ -37,5 +37,10 @@ const stmts = [
 })();
 " 2>/dev/null || echo "Migration step skipped."
 
+# Backfill roster fields (工号/入职/绩效/主体) for existing rows that lack them.
+# Idempotent: only fills rows where emp_no IS NULL, so manual edits are preserved.
+echo "Backfilling roster fields..."
+npx tsx src/db/update-roster.ts || echo "Roster backfill skipped."
+
 echo "Starting Next.js..."
 npm start

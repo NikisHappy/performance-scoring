@@ -4,3 +4,4 @@ node_modules/
 *.db
 .env
 .env.local
+tsconfig.tsbuildinfo

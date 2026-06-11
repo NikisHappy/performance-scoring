@@ -111,7 +111,29 @@ async function seed() {
   ])
 
   // Seed employees
-  await db.insert(schema.employees).values([
+  // 真实花名册字段(工号/入职时间/绩效金额/签署主体)来自 demo.xlsx, 按 id 合并到下方基础信息
+  const empMeta: Record<string, { empNo: string; joinDate: string; perfFullAmount: number; entity: string }> = {
+    e1: { empNo: '0009545', joinDate: '2025-10-13', perfFullAmount: 3000, entity: '北京破圈科技有限公司武汉分公司' },
+    e2: { empNo: '0009548', joinDate: '2025-10-15', perfFullAmount: 3000, entity: '北京破圈科技有限公司武汉分公司' },
+    e3: { empNo: '0009697', joinDate: '2026-03-23', perfFullAmount: 5400, entity: '北京破圈科技有限公司武汉分公司' },
+    e4: { empNo: '0009764', joinDate: '2026-04-08', perfFullAmount: 5400, entity: '北京破圈科技有限公司武汉分公司' },
+    e5: { empNo: '0009645', joinDate: '2026-03-09', perfFullAmount: 2700, entity: '北京破圈科技有限公司武汉分公司' },
+    e6: { empNo: '0009766', joinDate: '2026-04-13', perfFullAmount: 5400, entity: '北京破圈科技有限公司武汉分公司' },
+    e7: { empNo: '0009816', joinDate: '2026-04-20', perfFullAmount: 5400, entity: '北京破圈科技有限公司武汉分公司' },
+    e8: { empNo: '0009921', joinDate: '2026-04-27', perfFullAmount: 1800, entity: '北京破圈科技有限公司武汉分公司' },
+    e9: { empNo: '0009958', joinDate: '2026-05-08', perfFullAmount: 1800, entity: '北京破圈科技有限公司武汉分公司' },
+    e10: { empNo: '0009959', joinDate: '2026-05-15', perfFullAmount: 1800, entity: '北京破圈科技有限公司武汉分公司' },
+    e11: { empNo: '0009598', joinDate: '2025-10-20', perfFullAmount: 3000, entity: '北京破圈科技有限公司上海分公司' },
+    e12: { empNo: '0009623', joinDate: '2025-11-12', perfFullAmount: 2700, entity: '北京破圈科技有限公司上海分公司' },
+    e13: { empNo: '0009649', joinDate: '2026-03-11', perfFullAmount: 2700, entity: '北京破圈科技有限公司上海分公司' },
+    e14: { empNo: '0009601', joinDate: '2025-10-22', perfFullAmount: 3000, entity: '北京破圈科技有限公司上海分公司' },
+    e15: { empNo: '0009667', joinDate: '2026-03-11', perfFullAmount: 2700, entity: '北京破圈科技有限公司上海分公司' },
+    e16: { empNo: '0009844', joinDate: '2026-04-24', perfFullAmount: 5400, entity: '北京破圈科技有限公司武汉分公司' },
+    e17: { empNo: '0009915', joinDate: '2026-04-24', perfFullAmount: 1800, entity: '北京破圈科技有限公司武汉分公司' },
+    e18: { empNo: '0009916', joinDate: '2026-04-27', perfFullAmount: 1800, entity: '北京破圈科技有限公司武汉分公司' },
+  }
+
+  const empBase = [
     { id: 'e1', name: '方文雄', pos: '投手', level: '组长', teamId: 't1' },
     { id: 'e2', name: '陈丝雨', pos: '投手', level: '组长', teamId: 't1' },
     { id: 'e3', name: '佘君浩', pos: '投手', level: '高级投手', teamId: 't1' },
@@ -130,7 +152,11 @@ async function seed() {
     { id: 'e16', name: '林芝羽', pos: '策划', level: 'I3', teamId: 't4' },
     { id: 'e17', name: '李艳', pos: '策划', level: 'I3', teamId: 't4' },
     { id: 'e18', name: '王竹', pos: '策划', level: 'I3', teamId: 't4' },
-  ])
+  ]
+
+  await db.insert(schema.employees).values(
+    empBase.map(e => ({ ...e, dept: '北京破圈', ...empMeta[e.id] }))
+  )
 
   // Seed dimensions
   const DIMS: Record<string, Array<{ n: string; d: string; w: number; cat: string }>> = {
